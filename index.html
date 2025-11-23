@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#000000">
+    <title>CarDash</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Apple Touch Icon -->
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- MapLibre CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css">
+</head>
+<body>
+    <!-- Päävalikko: Logo taustalla ja 2×2 painikkeet -->
+    <div id="main-menu" class="screen active">
+        <div class="logo-background"></div>
+        <div class="button-grid">
+            <button class="nav-button" data-module="maps">
+                <span class="icon">🗺️</span>
+                <span class="label">Kartat</span>
+            </button>
+            <button class="nav-button" data-module="spotify">
+                <span class="icon">🎵</span>
+                <span class="label">Spotify</span>
+            </button>
+            <button class="nav-button" data-module="ai">
+                <span class="icon">🤖</span>
+                <span class="label">Tekoäly</span>
+            </button>
+            <button class="nav-button" data-module="settings">
+                <span class="icon">⚙️</span>
+                <span class="label">Asetukset</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Kartat-moduuli: MapLibre navigaattori -->
+    <div id="maps-screen" class="screen">
+        <div class="screen-header">
+            <button class="back-button">← Takaisin</button>
+            <h1>Navigointi</h1>
+        </div>
+        <div id="map-container"></div>
+        <div class="map-controls">
+            <div class="speed-display">
+                <span class="speed-value">0</span>
+                <span class="speed-unit">km/h</span>
+            </div>
+            <div class="heading-display">
+                <div class="compass">
+                    <div class="compass-needle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Spotify-moduuli: Web Playback -->
+    <div id="spotify-screen" class="screen">
+        <div class="screen-header">
+            <button class="back-button">← Takaisin</button>
+            <h1>Spotify</h1>
+        </div>
+        <div class="spotify-container">
+            <div class="spotify-notice">
+                <p>⚠️ Vaatii Spotify Premium -tilin ja HTTPS-yhteyden</p>
+                <button id="spotify-login" class="primary-button">Kirjaudu Spotifyyn</button>
+            </div>
+            <div id="spotify-player" class="hidden">
+                <div class="album-art">
+                    <img id="album-image" src="" alt="Album Art">
+                </div>
+                <div class="track-info">
+                    <h2 id="track-name">-</h2>
+                    <p id="artist-name">-</p>
+                </div>
+                <div class="player-controls">
+                    <button id="prev-btn" class="control-btn">⏮️</button>
+                    <button id="play-pause-btn" class="control-btn play">▶️</button>
+                    <button id="next-btn" class="control-btn">⏭️</button>
+                </div>
+                <div class="progress-bar">
+                    <div id="progress" class="progress-fill"></div>
+                </div>
+                <div class="volume-control">
+                    <span>🔊</span>
+                    <input type="range" id="volume-slider" min="0" max="100" value="50">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tekoäly-moduuli: Telegram-linkki -->
+    <div id="ai-screen" class="screen">
+        <div class="screen-header">
+            <button class="back-button">← Takaisin</button>
+            <h1>Tekoäly-avustaja</h1>
+        </div>
+        <div class="ai-container">
+            <div class="ai-info">
+                <div class="ai-icon">🤖</div>
+                <h2>@anomjugibot</h2>
+                <p>Telegram-pohjainen AI-avustaja autosi tarpeisiin</p>
+                <a href="https://t.me/anomjugibot" target="_blank" class="primary-button">
+                    Avaa Telegram
+                </a>
+            </div>
+            <div class="ai-features">
+                <h3>Ominaisuudet:</h3>
+                <ul>
+                    <li>🗣️ Ääniohjaus</li>
+                    <li>📍 Sijaintitiedot</li>
+                    <li>🚗 Ajoneuvoinfo</li>
+                    <li>⚡ Reaaliaikainen chat</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Asetukset-moduuli -->
+    <div id="settings-screen" class="screen">
+        <div class="screen-header">
+            <button class="back-button">← Takaisin</button>
+            <h1>Asetukset</h1>
+        </div>
+        <div class="settings-container">
+            <div class="settings-section">
+                <h2>API-asetukset</h2>
+                <div class="setting-item">
+                    <label for="maplibre-token">MapLibre API Token</label>
+                    <input type="text" id="maplibre-token" placeholder="Syötä MapLibre token...">
+                </div>
+                <div class="setting-item">
+                    <label for="spotify-client-id">Spotify Client ID</label>
+                    <input type="text" id="spotify-client-id" placeholder="Syötä Spotify Client ID...">
+                </div>
+                <div class="setting-item">
+                    <label for="spotify-client-secret">Spotify Client Secret</label>
+                    <input type="password" id="spotify-client-secret" placeholder="Syötä Spotify Client Secret...">
+                </div>
+                <div class="setting-item">
+                    <label for="stream-url">Stream URL</label>
+                    <input type="text" id="stream-url" placeholder="Syötä stream URL...">
+                </div>
+            </div>
+            
+            <div class="settings-section">
+                <h2>Näyttöasetukset</h2>
+                <div class="setting-item">
+                    <label for="brightness">Kirkkaus</label>
+                    <input type="range" id="brightness" min="0" max="100" value="80">
+                </div>
+                <div class="setting-item">
+                    <label>Yötila</label>
+                    <label class="switch">
+                        <input type="checkbox" id="night-mode">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="settings-section">
+                <h2>Navigointiasetukset</h2>
+                <div class="setting-item">
+                    <label>Heading-up -tila</label>
+                    <label class="switch">
+                        <input type="checkbox" id="heading-up" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <label for="smoothing">EMA Smoothing</label>
+                    <input type="range" id="smoothing" min="0" max="10" value="5">
+                </div>
+            </div>
+            
+            <button id="save-settings" class="primary-button">Tallenna asetukset</button>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+    <script src="https://sdk.scdn.co/spotify-player.js"></script>
+    <script src="app.js"></script>
+    <script>
+        // Rekisteröi Service Worker PWA:lle
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('Service Worker rekisteröity:', reg))
+                    .catch(err => console.log('Service Worker virhe:', err));
+            });
+        }
+    </script>
+</body>
+</html>
