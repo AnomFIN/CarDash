@@ -62,7 +62,8 @@ self.addEventListener('fetch', (event) => {
     // Älä välimuistita Spotify tai muiden palveluiden API-kutsuja
     if (event.request.url.includes('spotify.com') ||
         event.request.url.includes('telegram.org') ||
-        event.request.url.includes('maplibre')) {
+        event.request.url.includes('api.maplibre.org') ||
+        event.request.url.includes('unpkg.com')) {
         return;
     }
     

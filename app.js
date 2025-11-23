@@ -254,6 +254,34 @@ function initSpotify() {
     window.onSpotifyWebPlaybackSDKReady = () => {
         console.log('Spotify Web Playback SDK valmis');
     };
+    
+    // Kuuntele OAuth-callback viestejä
+    window.addEventListener('message', (event) => {
+        if (event.origin !== window.location.origin) return;
+        
+        if (event.data.type === 'spotify-auth-success') {
+            console.log('Spotify-autentikaatio onnistui');
+            initSpotifyPlayer(event.data.token);
+        }
+    });
+    
+    // Tarkista onko token jo tallennettu
+    const savedToken = localStorage.getItem('spotify-token');
+    if (savedToken) {
+        try {
+            const tokenData = JSON.parse(savedToken);
+            const age = Date.now() - tokenData.timestamp;
+            const maxAge = tokenData.expiresIn * 1000;
+            
+            if (age < maxAge) {
+                // Token on vielä voimassa
+                console.log('Käytetään tallennettua Spotify-tokenia');
+                // Voit kutsua initSpotifyPlayer(tokenData.accessToken) jos haluat automaattisen kirjautumisen
+            }
+        } catch (e) {
+            console.error('Tallennetun tokenin parsiminen epäonnistui:', e);
+        }
+    }
 }
 
 function authenticateSpotify() {
@@ -261,7 +289,8 @@ function authenticateSpotify() {
     // Tuotannossa tarvitset oikean Client ID:n ja redirect URI:n
     
     if (!settings.spotifyClientId) {
-        alert('Aseta Spotify Client ID asetuksista!');
+        // Näytä viesti käyttäjälle ja ohjaa asetuksiin
+        console.warn('Spotify Client ID puuttuu');
         navigateTo('settings-screen');
         return;
     }
@@ -274,6 +303,10 @@ function authenticateSpotify() {
         'user-modify-playback-state'
     ].join(' ');
     
+    // HUOM: Tarvitset backend-ratkaisun OAuth-callback:lle
+    // Tämä on placeholder-toteutus. Tuotannossa:
+    // 1. Luo backend-endpoint callback-käsittelyä varten
+    // 2. Tai käytä implicit grant flow:ia ja käsittele token URL hashista
     const redirectUri = window.location.origin + '/callback';
     const authUrl = `https://accounts.spotify.com/authorize?` +
         `client_id=${settings.spotifyClientId}&` +

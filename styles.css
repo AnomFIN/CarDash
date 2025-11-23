@@ -82,7 +82,10 @@ body.night-mode {
     left: 0;
     width: 100%;
     height: 100%;
+    /* Muokkaa polku omaan logoon: */
     background: url('/mnt/data/logotp.png') no-repeat center center;
+    /* Vaihtoehtoisesti käytä suhteellista polkua: */
+    /* background: url('assets/logotp.png') no-repeat center center; */
     background-size: contain;
     opacity: 0.15;
     pointer-events: none;
