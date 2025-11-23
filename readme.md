@@ -26,6 +26,12 @@ background-image: url('/mnt/data/logotp.png');
 /* Fallback: use url('/mnt/data/logotp.ico') if .png is missing */
 ```
 
+**Note**: This absolute path is intentional per project requirements. For different deployment scenarios, update the path in:
+- `styles.css` (line ~57)
+- `manifest.json` (icon paths)
+- `service-worker.js` (precache list)
+- `index.html` (MediaSession artwork)
+
 ## 🚀 Quick Start
 
 ### Local Testing (UI Only)

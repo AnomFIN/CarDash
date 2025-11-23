@@ -363,22 +363,30 @@
                 video.autoplay = true;
                 video.muted = true;
 
-                // Load HLS.js if needed
-                if (Hls.isSupported()) {
+                preview.appendChild(video);
+
+                // Load HLS.js dynamically and initialize when ready
+                if (typeof Hls !== 'undefined' && Hls.isSupported()) {
+                    // HLS.js already loaded
                     const hls = new Hls();
                     hls.loadSource(STREAM_URL);
                     hls.attachMedia(video);
                 } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
                     // Native HLS support (Safari)
                     video.src = STREAM_URL;
+                } else {
+                    // Load HLS.js dynamically
+                    const script = document.createElement('script');
+                    script.src = 'https://cdn.jsdelivr.net/npm/hls.js@latest';
+                    script.onload = () => {
+                        if (Hls.isSupported()) {
+                            const hls = new Hls();
+                            hls.loadSource(STREAM_URL);
+                            hls.attachMedia(video);
+                        }
+                    };
+                    document.head.appendChild(script);
                 }
-
-                preview.appendChild(video);
-
-                // Load HLS.js dynamically
-                const script = document.createElement('script');
-                script.src = 'https://cdn.jsdelivr.net/npm/hls.js@latest';
-                document.head.appendChild(script);
 
             } else if (STREAM_URL.includes('?action=stream') || STREAM_URL.includes('mjpeg')) {
                 // MJPEG stream - use img element
