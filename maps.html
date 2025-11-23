@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#000000">
+    <title>CarDash - Kartat</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
+    <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+    <style>
+        #map { 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+        }
+        .vehicle-marker {
+            width: 32px;
+            height: 32px;
+            filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.6));
+            transition: transform 0.3s ease-out;
+        }
+        .turn-card {
+            position: absolute;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(16px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 16px 24px;
+            color: white;
+            font-size: 20px;
+            font-weight: 600;
+            z-index: 10;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+        .route-line {
+            line-width: 5;
+            line-color: #1E90FF;
+            line-opacity: 0.8;
+        }
+    </style>
+</head>
+<body class="page-enter subpage">
+    <div class="background"></div>
+    
+    <header>
+        <button class="back-button" onclick="goBack()" aria-label="Takaisin">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+        </button>
+        <h1 class="app-title">Navigointi</h1>
+    </header>
+
+    <div id="map"></div>
+    
+    <div class="turn-card">
+        <span>Seuraava: käänny oikealle 200 m</span>
+    </div>
+
+    <script>
+        // EMA (Exponential Moving Average) alpha for smooth camera movement
+        // Recommended: 0.15-0.3 for smooth following. Lower = smoother but more lag.
+        // For production, consider implementing a Kalman filter for better noise reduction.
+        const EMA_ALPHA = 0.2;
+
+        let map;
+        let vehicleMarker;
+        let currentPosition = { lat: 60.1699, lng: 24.9384, heading: 0 }; // Helsinki default
+        let targetPosition = { ...currentPosition };
+        let animationFrameId;
+
+        // Initialize map with MapLibre GL JS
+        function initMap() {
+            map = new maplibregl.Map({
+                container: 'map',
+                style: 'https://demotiles.maplibre.org/style.json', // Free demo tiles
+                center: [currentPosition.lng, currentPosition.lat],
+                zoom: 16,
+                pitch: 55, // Navigator-style 3D view
+                bearing: 0
+            });
+
+            map.on('load', () => {
+                // Add sample route overlay (GeoJSON)
+                // TODO: Replace with actual route from OSRM/GraphHopper/Google Directions API
+                // Example: fetch(`https://router.project-osrm.org/route/v1/driving/${startLng},${startLat};${endLng},${endLat}?overview=full&geometries=geojson`)
+                const sampleRoute = {
+                    type: 'Feature',
+                    geometry: {
+                        type: 'LineString',
+                        coordinates: [
+                            [24.9384, 60.1699],
+                            [24.9404, 60.1709],
+                            [24.9424, 60.1719],
+                            [24.9444, 60.1729]
+                        ]
+                    }
+                };
+
+                map.addSource('route', {
+                    type: 'geojson',
+                    data: sampleRoute
+                });
+
+                map.addLayer({
+                    id: 'route-line',
+                    type: 'line',
+                    source: 'route',
+                    paint: {
+                        'line-width': 5,
+                        'line-color': '#1E90FF',
+                        'line-opacity': 0.8
+                    }
+                });
+
+                // Add vehicle marker
+                addVehicleMarker();
+                
+                // Start position updates
+                startGeolocation();
+            });
+        }
+
+        // Add vehicle marker with heading rotation
+        function addVehicleMarker() {
+            const el = document.createElement('div');
+            el.className = 'vehicle-marker';
+            el.innerHTML = `
+                <svg viewBox="0 0 24 24" fill="#1E90FF" stroke="white" stroke-width="1.5">
+                    <path d="M12 2 L16 10 L12 8 L8 10 Z"/>
+                    <circle cx="12" cy="12" r="3" fill="white"/>
+                </svg>
+            `;
+
+            vehicleMarker = new maplibregl.Marker({ element: el })
+                .setLngLat([currentPosition.lng, currentPosition.lat])
+                .addTo(map);
+        }
+
+        // Start geolocation tracking
+        function startGeolocation() {
+            if ('geolocation' in navigator) {
+                navigator.geolocation.watchPosition(
+                    (position) => {
+                        targetPosition = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude,
+                            heading: position.coords.heading || targetPosition.heading
+                        };
+                        startCameraAnimation();
+                    },
+                    (error) => {
+                        console.warn('Geolocation error:', error);
+                        // Fallback to simulated route
+                        simulateRoute();
+                    },
+                    { enableHighAccuracy: true, maximumAge: 1000 }
+                );
+            } else {
+                // No geolocation support, simulate route
+                simulateRoute();
+            }
+        }
+
+        // Simulated route for testing when geolocation denied
+        function simulateRoute() {
+            let stepIndex = 0;
+            const steps = [
+                { lat: 60.1699, lng: 24.9384, heading: 45 },
+                { lat: 60.1709, lng: 24.9404, heading: 45 },
+                { lat: 60.1719, lng: 24.9424, heading: 90 },
+                { lat: 60.1729, lng: 24.9444, heading: 90 }
+            ];
+
+            setInterval(() => {
+                stepIndex = (stepIndex + 1) % steps.length;
+                targetPosition = steps[stepIndex];
+                if (!animationFrameId) {
+                    startCameraAnimation();
+                }
+            }, 3000);
+        }
+
+        // Smooth camera animation using EMA and requestAnimationFrame
+        function startCameraAnimation() {
+            if (animationFrameId) return;
+
+            function animate() {
+                // Exponential moving average for smooth interpolation
+                currentPosition.lat += (targetPosition.lat - currentPosition.lat) * EMA_ALPHA;
+                currentPosition.lng += (targetPosition.lng - currentPosition.lng) * EMA_ALPHA;
+                currentPosition.heading += (targetPosition.heading - currentPosition.heading) * EMA_ALPHA;
+
+                // Update marker position and rotation
+                if (vehicleMarker) {
+                    vehicleMarker.setLngLat([currentPosition.lng, currentPosition.lat]);
+                    const el = vehicleMarker.getElement();
+                    el.style.transform = `rotate(${currentPosition.heading}deg)`;
+                }
+
+                // Update camera (heading-up mode)
+                map.setCenter([currentPosition.lng, currentPosition.lat]);
+                map.setBearing(currentPosition.heading);
+
+                // Continue animation if not close enough to target
+                const distance = Math.sqrt(
+                    Math.pow(targetPosition.lat - currentPosition.lat, 2) +
+                    Math.pow(targetPosition.lng - currentPosition.lng, 2)
+                );
+
+                if (distance > 0.00001) {
+                    animationFrameId = requestAnimationFrame(animate);
+                } else {
+                    animationFrameId = null;
+                }
+            }
+
+            animationFrameId = requestAnimationFrame(animate);
+        }
+
+        // Back button navigation
+        function goBack() {
+            document.body.classList.remove('page-enter');
+            document.body.classList.add('page-leave-reverse');
+            
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 280);
+        }
+
+        // Apply night mode from localStorage
+        if (localStorage.getItem('nightMode') === 'true') {
+            document.body.classList.add('night');
+        }
+
+        // Apply brightness from localStorage
+        const brightness = localStorage.getItem('brightness');
+        if (brightness) {
+            document.body.style.filter = `brightness(${brightness}%)`;
+        }
+
+        // Initialize map on load
+        initMap();
+    </script>
+</body>
+</html>
