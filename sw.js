@@ -60,11 +60,21 @@ self.addEventListener('fetch', (event) => {
     }
     
     // Älä välimuistita Spotify tai muiden palveluiden API-kutsuja
-    if (event.request.url.includes('spotify.com') ||
-        event.request.url.includes('telegram.org') ||
-        event.request.url.includes('api.maplibre.org') ||
-        event.request.url.includes('unpkg.com')) {
-        return;
+    // Käytetään URL-objektia turvalliseen hostinimen tarkistukseen
+    try {
+        const url = new URL(event.request.url);
+        const hostname = url.hostname;
+        
+        // Tarkista että hostname päättyy oikeaan domainiin (estää subdomain-hyökkäykset)
+        if (hostname.endsWith('.spotify.com') || hostname === 'spotify.com' ||
+            hostname.endsWith('.telegram.org') || hostname === 'telegram.org' ||
+            hostname.endsWith('.maplibre.org') || hostname === 'maplibre.org' ||
+            hostname.endsWith('.unpkg.com') || hostname === 'unpkg.com') {
+            return;
+        }
+    } catch (e) {
+        // Jos URL-parsinta epäonnistuu, jatka normaalisti
+        console.warn('[SW] URL-parsinta epäonnistui:', e);
     }
     
     event.respondWith(
