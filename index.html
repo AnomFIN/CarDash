@@ -2,203 +2,116 @@
 <html lang="fi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="theme-color" content="#000000">
     <title>CarDash</title>
-    
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="manifest.json">
-    
-    <!-- Apple Touch Icon -->
-    <link rel="apple-touch-icon" href="icons/icon-192.png">
-    
-    <!-- Styles -->
     <link rel="stylesheet" href="styles.css">
-    
-    <!-- MapLibre CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css">
+    <link rel="manifest" href="manifest.json">
 </head>
-<body>
-    <!-- Päävalikko: Logo taustalla ja 2×2 painikkeet -->
-    <div id="main-menu" class="screen active">
-        <div class="logo-background"></div>
-        <div class="button-grid">
-            <button class="nav-button" data-module="maps">
-                <span class="icon">🗺️</span>
-                <span class="label">Kartat</span>
+<body class="page-enter">
+    <div class="background"></div>
+    
+    <header>
+        <h1 class="app-title">CarDash</h1>
+    </header>
+
+    <main class="home-container">
+        <div class="app-grid">
+            <!-- Maps Button -->
+            <button class="app-button" 
+                    role="button" 
+                    aria-label="Kartat - Navigointi"
+                    onclick="navigateTo('maps.html')">
+                <svg class="app-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+                </svg>
+                <span class="app-label">KARTAT</span>
             </button>
-            <button class="nav-button" data-module="spotify">
-                <span class="icon">🎵</span>
-                <span class="label">Spotify</span>
+
+            <!-- Spotify Button -->
+            <button class="app-button" 
+                    role="button" 
+                    aria-label="Spotify - Musiikki"
+                    onclick="navigateTo('spotify.html')">
+                <svg class="app-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M8 14.5c2-1 5-1 8 0M7.5 11c3-1.5 7-1.5 9 0M9 17.5c1.5-.5 3.5-.5 6 0"/>
+                </svg>
+                <span class="app-label">SPOTIFY</span>
             </button>
-            <button class="nav-button" data-module="ai">
-                <span class="icon">🤖</span>
-                <span class="label">Tekoäly</span>
+
+            <!-- AI Chat Button -->
+            <button class="app-button" 
+                    role="button" 
+                    aria-label="Tekoäly - Chat"
+                    onclick="navigateTo('telegram.html')">
+                <svg class="app-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+                    <circle cx="9" cy="10" r="1" fill="currentColor"/>
+                    <circle cx="12" cy="10" r="1" fill="currentColor"/>
+                    <circle cx="15" cy="10" r="1" fill="currentColor"/>
+                </svg>
+                <span class="app-label">TEKOÄLY</span>
             </button>
-            <button class="nav-button" data-module="settings">
-                <span class="icon">⚙️</span>
-                <span class="label">Asetukset</span>
+
+            <!-- Settings Button -->
+            <button class="app-button" 
+                    role="button" 
+                    aria-label="Asetukset"
+                    onclick="navigateTo('settings.html')">
+                <svg class="app-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M12 1v6m0 6v10m8.66-15.66l-4.24 4.24m-8.48 8.48l-4.24 4.24M23 12h-6m-6 0H1m20.66 8.66l-4.24-4.24m-8.48-8.48l-4.24-4.24"/>
+                </svg>
+                <span class="app-label">ASETUKSET</span>
             </button>
         </div>
-    </div>
 
-    <!-- Kartat-moduuli: MapLibre navigaattori -->
-    <div id="maps-screen" class="screen">
-        <div class="screen-header">
-            <button class="back-button">← Takaisin</button>
-            <h1>Navigointi</h1>
-        </div>
-        <div id="map-container"></div>
-        <div class="map-controls">
-            <div class="speed-display">
-                <span class="speed-value">0</span>
-                <span class="speed-unit">km/h</span>
-            </div>
-            <div class="heading-display">
-                <div class="compass">
-                    <div class="compass-needle"></div>
-                </div>
-            </div>
-        </div>
-    </div>
+        <footer class="footer-hint">
+            <p>Kosketa sovellusta aloittaaksesi</p>
+        </footer>
+    </main>
 
-    <!-- Spotify-moduuli: Web Playback -->
-    <div id="spotify-screen" class="screen">
-        <div class="screen-header">
-            <button class="back-button">← Takaisin</button>
-            <h1>Spotify</h1>
-        </div>
-        <div class="spotify-container">
-            <div class="spotify-notice">
-                <p>⚠️ Vaatii Spotify Premium -tilin ja HTTPS-yhteyden</p>
-                <button id="spotify-login" class="primary-button">Kirjaudu Spotifyyn</button>
-            </div>
-            <div id="spotify-player" class="hidden">
-                <div class="album-art">
-                    <img id="album-image" src="" alt="Album Art">
-                </div>
-                <div class="track-info">
-                    <h2 id="track-name">-</h2>
-                    <p id="artist-name">-</p>
-                </div>
-                <div class="player-controls">
-                    <button id="prev-btn" class="control-btn">⏮️</button>
-                    <button id="play-pause-btn" class="control-btn play">▶️</button>
-                    <button id="next-btn" class="control-btn">⏭️</button>
-                </div>
-                <div class="progress-bar">
-                    <div id="progress" class="progress-fill"></div>
-                </div>
-                <div class="volume-control">
-                    <span>🔊</span>
-                    <input type="range" id="volume-slider" min="0" max="100" value="50">
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Tekoäly-moduuli: Telegram-linkki -->
-    <div id="ai-screen" class="screen">
-        <div class="screen-header">
-            <button class="back-button">← Takaisin</button>
-            <h1>Tekoäly-avustaja</h1>
-        </div>
-        <div class="ai-container">
-            <div class="ai-info">
-                <div class="ai-icon">🤖</div>
-                <h2>@anomjugibot</h2>
-                <p>Telegram-pohjainen AI-avustaja autosi tarpeisiin</p>
-                <a href="https://t.me/anomjugibot" target="_blank" class="primary-button">
-                    Avaa Telegram
-                </a>
-            </div>
-            <div class="ai-features">
-                <h3>Ominaisuudet:</h3>
-                <ul>
-                    <li>🗣️ Ääniohjaus</li>
-                    <li>📍 Sijaintitiedot</li>
-                    <li>🚗 Ajoneuvoinfo</li>
-                    <li>⚡ Reaaliaikainen chat</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-
-    <!-- Asetukset-moduuli -->
-    <div id="settings-screen" class="screen">
-        <div class="screen-header">
-            <button class="back-button">← Takaisin</button>
-            <h1>Asetukset</h1>
-        </div>
-        <div class="settings-container">
-            <div class="settings-section">
-                <h2>API-asetukset</h2>
-                <div class="setting-item">
-                    <label for="maplibre-token">MapLibre API Token</label>
-                    <input type="text" id="maplibre-token" placeholder="Syötä MapLibre token...">
-                </div>
-                <div class="setting-item">
-                    <label for="spotify-client-id">Spotify Client ID</label>
-                    <input type="text" id="spotify-client-id" placeholder="Syötä Spotify Client ID...">
-                </div>
-                <div class="setting-item">
-                    <label for="spotify-client-secret">Spotify Client Secret</label>
-                    <input type="password" id="spotify-client-secret" placeholder="Syötä Spotify Client Secret...">
-                </div>
-                <div class="setting-item">
-                    <label for="stream-url">Stream URL</label>
-                    <input type="text" id="stream-url" placeholder="Syötä stream URL...">
-                </div>
-            </div>
-            
-            <div class="settings-section">
-                <h2>Näyttöasetukset</h2>
-                <div class="setting-item">
-                    <label for="brightness">Kirkkaus</label>
-                    <input type="range" id="brightness" min="0" max="100" value="80">
-                </div>
-                <div class="setting-item">
-                    <label>Yötila</label>
-                    <label class="switch">
-                        <input type="checkbox" id="night-mode">
-                        <span class="slider"></span>
-                    </label>
-                </div>
-            </div>
-            
-            <div class="settings-section">
-                <h2>Navigointiasetukset</h2>
-                <div class="setting-item">
-                    <label>Heading-up -tila</label>
-                    <label class="switch">
-                        <input type="checkbox" id="heading-up" checked>
-                        <span class="slider"></span>
-                    </label>
-                </div>
-                <div class="setting-item">
-                    <label for="smoothing">EMA Smoothing</label>
-                    <input type="range" id="smoothing" min="0" max="10" value="5">
-                </div>
-            </div>
-            
-            <button id="save-settings" class="primary-button">Tallenna asetukset</button>
-        </div>
-    </div>
-
-    <!-- Scripts -->
-    <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
-    <script src="https://sdk.scdn.co/spotify-player.js"></script>
-    <script src="app.js"></script>
     <script>
-        // Rekisteröi Service Worker PWA:lle
+        // Register service worker
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(reg => console.log('Service Worker rekisteröity:', reg))
-                    .catch(err => console.log('Service Worker virhe:', err));
+            navigator.serviceWorker.register('service-worker.js')
+                .then(reg => console.log('Service Worker registered:', reg.scope))
+                .catch(err => console.log('Service Worker registration failed:', err));
+        }
+
+        // Media Session API stub for background playback control
+        if ('mediaSession' in navigator) {
+            navigator.mediaSession.metadata = new MediaMetadata({
+                title: 'CarDash',
+                artist: 'In-Car Interface',
+                album: 'Dashboard',
+                artwork: [
+                    { src: '/mnt/data/logotp.png', sizes: '512x512', type: 'image/png' }
+                ]
             });
+        }
+
+        // Smooth page navigation with animation
+        function navigateTo(page) {
+            const body = document.body;
+            body.classList.remove('page-enter');
+            body.classList.add('page-leave');
+            
+            setTimeout(() => {
+                window.location.href = page;
+            }, 280); // Match animation duration
+        }
+
+        // Apply night mode from localStorage
+        if (localStorage.getItem('nightMode') === 'true') {
+            document.body.classList.add('night');
+        }
+
+        // Apply brightness from localStorage
+        const brightness = localStorage.getItem('brightness');
+        if (brightness) {
+            document.body.style.filter = `brightness(${brightness}%)`;
         }
     </script>
 </body>
