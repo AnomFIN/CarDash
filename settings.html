@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#000000">
+    <title>CarDash - Asetukset</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .settings-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        .setting-group {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        .setting-group h3 {
+            font-size: 22px;
+            margin-bottom: 20px;
+            color: white;
+            font-weight: 600;
+        }
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .setting-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+        .setting-label {
+            flex: 1;
+        }
+        .setting-label h4 {
+            font-size: 18px;
+            margin-bottom: 4px;
+            color: white;
+        }
+        .setting-label p {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        .setting-control {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 200px;
+            height: 8px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            transition: background 0.2s;
+        }
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+        .slider::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+        .slider-value {
+            min-width: 50px;
+            text-align: right;
+            font-size: 18px;
+            font-weight: 600;
+            color: white;
+        }
+        .toggle-switch {
+            position: relative;
+            width: 64px;
+            height: 32px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 32px;
+            cursor: pointer;
+            transition: background 0.3s;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        .toggle-switch.active {
+            background: rgba(30, 215, 96, 0.4);
+            border-color: rgba(30, 215, 96, 0.6);
+        }
+        .toggle-switch .toggle-knob {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+        .toggle-switch.active .toggle-knob {
+            transform: translateX(32px);
+        }
+        .action-button {
+            width: 100%;
+            padding: 20px;
+            font-size: 18px;
+            font-weight: 600;
+            color: white;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            backdrop-filter: blur(8px);
+        }
+        .action-button:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+        .action-button.danger {
+            background: rgba(244, 67, 54, 0.2);
+            border-color: rgba(244, 67, 54, 0.5);
+        }
+        .action-button.danger:hover {
+            background: rgba(244, 67, 54, 0.3);
+        }
+        .camera-section {
+            margin-top: 24px;
+        }
+        .camera-preview {
+            width: 100%;
+            max-width: 600px;
+            aspect-ratio: 16/9;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 12px;
+            margin-top: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+        .info-note {
+            background: rgba(41, 171, 226, 0.15);
+            border: 2px solid rgba(41, 171, 226, 0.3);
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 16px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body class="page-enter subpage">
+    <div class="background"></div>
+    
+    <header>
+        <button class="back-button" onclick="goBack()" aria-label="Takaisin">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+        </button>
+        <h1 class="app-title">Asetukset</h1>
+    </header>
+
+    <main class="settings-container">
+        <!-- Display Settings -->
+        <div class="setting-group">
+            <h3>Näyttö</h3>
+            
+            <div class="setting-item">
+                <div class="setting-label">
+                    <h4>Kirkkaus</h4>
+                    <p>Säädä näytön kirkkautta</p>
+                </div>
+                <div class="setting-control">
+                    <input type="range" 
+                           class="slider" 
+                           id="brightnessSlider" 
+                           min="50" 
+                           max="150" 
+                           value="100"
+                           oninput="updateBrightness(this.value)">
+                    <span class="slider-value" id="brightnessValue">100%</span>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-label">
+                    <h4>Yötila</h4>
+                    <p>Vähennä sinistä valoa</p>
+                </div>
+                <div class="setting-control">
+                    <div class="toggle-switch" id="nightToggle" onclick="toggleNightMode()">
+                        <div class="toggle-knob"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Audio Settings -->
+        <div class="setting-group">
+            <h3>Ääni</h3>
+            
+            <div class="setting-item">
+                <div class="setting-label">
+                    <h4>Äänenvoimakkuus</h4>
+                    <p>Säädä MediaSession/Spotify äänenvoimakkuutta</p>
+                </div>
+                <div class="setting-control">
+                    <input type="range" 
+                           class="slider" 
+                           id="volumeSlider" 
+                           min="0" 
+                           max="100" 
+                           value="80"
+                           oninput="updateVolume(this.value)">
+                    <span class="slider-value" id="volumeValue">80%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Camera Settings -->
+        <div class="setting-group">
+            <h3>Kamera</h3>
+            
+            <div class="setting-item camera-section">
+                <div class="setting-label">
+                    <h4>Peruutuskamera</h4>
+                    <p>Yhdistä IP-kamera tai MJPEG-stream</p>
+                </div>
+            </div>
+
+            <div class="camera-preview" id="cameraPreview">
+                <span>Kamera ei yhdistetty</span>
+            </div>
+
+            <div class="info-note">
+                <strong>Kameran asetukset:</strong> Määritä <code>STREAM_URL_PLACEHOLDER</code> koodissa.<br>
+                • HLS-stream (.m3u8): käytetään &lt;video&gt; + HLS.js<br>
+                • MJPEG-stream (?action=stream tai /mjpeg): käytetään &lt;img&gt;<br>
+                Esimerkki: <code>http://192.168.1.100:8080/video?action=stream</code>
+            </div>
+        </div>
+
+        <!-- System Settings -->
+        <div class="setting-group">
+            <h3>Järjestelmä</h3>
+            
+            <div class="setting-item">
+                <div class="setting-label">
+                    <h4>Kiosk-tila</h4>
+                    <p>Piilota selainpalkit ja estä poistuminen</p>
+                </div>
+            </div>
+            
+            <div class="info-note">
+                <strong>Kiosk-tilan käyttöönotto:</strong><br>
+                Chrome/Edge: Avaa sovellus selaimen kiosk-tilassa:<br>
+                <code>chrome --kiosk --app=http://localhost:8080/index.html</code><br>
+                Android: Käytä Kiosk Browser -sovellusta tai Android Enterprise -kioskitilaa.
+            </div>
+
+            <button class="action-button danger" onclick="restartApp()">
+                Käynnistä uudelleen
+            </button>
+        </div>
+    </main>
+
+    <script>
+        // Camera stream configuration
+        const STREAM_URL = 'STREAM_URL_PLACEHOLDER'; // Replace with actual stream URL
+
+        // Initialize settings from localStorage
+        function initSettings() {
+            // Brightness
+            const brightness = localStorage.getItem('brightness') || 100;
+            document.getElementById('brightnessSlider').value = brightness;
+            document.getElementById('brightnessValue').textContent = brightness + '%';
+            document.body.style.filter = `brightness(${brightness}%)`;
+
+            // Night mode
+            const nightMode = localStorage.getItem('nightMode') === 'true';
+            if (nightMode) {
+                document.getElementById('nightToggle').classList.add('active');
+                document.body.classList.add('night');
+            }
+
+            // Volume
+            const volume = localStorage.getItem('volume') || 80;
+            document.getElementById('volumeSlider').value = volume;
+            document.getElementById('volumeValue').textContent = volume + '%';
+
+            // Initialize camera if URL is set
+            initCamera();
+        }
+
+        // Update brightness
+        function updateBrightness(value) {
+            document.getElementById('brightnessValue').textContent = value + '%';
+            document.body.style.filter = `brightness(${value}%)`;
+            localStorage.setItem('brightness', value);
+        }
+
+        // Toggle night mode
+        function toggleNightMode() {
+            const toggle = document.getElementById('nightToggle');
+            const isActive = toggle.classList.toggle('active');
+            document.body.classList.toggle('night');
+            localStorage.setItem('nightMode', isActive);
+        }
+
+        // Update volume
+        function updateVolume(value) {
+            document.getElementById('volumeValue').textContent = value + '%';
+            localStorage.setItem('volume', value);
+
+            // Update MediaSession volume if available
+            if ('mediaSession' in navigator && navigator.mediaSession.setVolume) {
+                navigator.mediaSession.setVolume(value / 100);
+            }
+        }
+
+        // Initialize camera stream
+        function initCamera() {
+            if (STREAM_URL === 'STREAM_URL_PLACEHOLDER') {
+                return; // No stream configured
+            }
+
+            const preview = document.getElementById('cameraPreview');
+            preview.innerHTML = '';
+
+            // Determine stream type and create appropriate element
+            if (STREAM_URL.endsWith('.m3u8')) {
+                // HLS stream - use video element with HLS.js
+                const video = document.createElement('video');
+                video.style.width = '100%';
+                video.style.height = '100%';
+                video.style.objectFit = 'cover';
+                video.controls = true;
+                video.autoplay = true;
+                video.muted = true;
+
+                // Load HLS.js if needed
+                if (Hls.isSupported()) {
+                    const hls = new Hls();
+                    hls.loadSource(STREAM_URL);
+                    hls.attachMedia(video);
+                } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                    // Native HLS support (Safari)
+                    video.src = STREAM_URL;
+                }
+
+                preview.appendChild(video);
+
+                // Load HLS.js dynamically
+                const script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/hls.js@latest';
+                document.head.appendChild(script);
+
+            } else if (STREAM_URL.includes('?action=stream') || STREAM_URL.includes('mjpeg')) {
+                // MJPEG stream - use img element
+                const img = document.createElement('img');
+                img.src = STREAM_URL;
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.objectFit = 'cover';
+                img.alt = 'Camera feed';
+                preview.appendChild(img);
+
+            } else {
+                // Generic video stream
+                const video = document.createElement('video');
+                video.src = STREAM_URL;
+                video.style.width = '100%';
+                video.style.height = '100%';
+                video.style.objectFit = 'cover';
+                video.controls = true;
+                video.autoplay = true;
+                video.muted = true;
+                preview.appendChild(video);
+            }
+        }
+
+        // Restart application
+        function restartApp() {
+            if (confirm('Käynnistetään sovellus uudelleen. Jatketaanko?')) {
+                location.reload();
+            }
+        }
+
+        // Back button navigation
+        function goBack() {
+            document.body.classList.remove('page-enter');
+            document.body.classList.add('page-leave-reverse');
+            
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 280);
+        }
+
+        // Initialize settings on load
+        initSettings();
+    </script>
+</body>
+</html>

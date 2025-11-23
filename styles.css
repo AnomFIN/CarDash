@@ -1,0 +1,529 @@
+/* CarDash - Premium Tesla/Apple Aesthetic Styles */
+
+/* ============================================
+   Global Reset & Base Styles
+   ============================================ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --primary-bg: #000000;
+    --glass-bg: rgba(255, 255, 255, 0.08);
+    --glass-border: rgba(255, 255, 255, 0.2);
+    --text-primary: #ffffff;
+    --text-secondary: rgba(255, 255, 255, 0.7);
+    --accent-blue: #1E90FF;
+    --accent-green: #1ED760;
+    --shadow-heavy: 0 12px 48px rgba(0, 0, 0, 0.6);
+    --shadow-medium: 0 8px 32px rgba(0, 0, 0, 0.4);
+    --shadow-light: 0 4px 16px rgba(0, 0, 0, 0.3);
+    --transition-fast: 220ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-medium: 320ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 400ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+html {
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+    font-size: 18px;
+    line-height: 1.5;
+    color: var(--text-primary);
+    background: var(--primary-bg);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+}
+
+/* ============================================
+   Background with Blur & Overlay
+   ============================================ */
+.background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    
+    /* Primary background image path */
+    background-image: url('/mnt/data/logotp.png');
+    /* Fallback: use url('/mnt/data/logotp.ico') if .png is missing */
+    
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    filter: blur(40px) brightness(0.4);
+}
+
+.background::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(180deg, 
+        rgba(0, 0, 0, 0.7) 0%, 
+        rgba(0, 0, 0, 0.85) 100%
+    );
+}
+
+/* ============================================
+   Header with Glass Effect
+   ============================================ */
+header {
+    position: relative;
+    padding: 24px 32px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-bottom: 2px solid var(--glass-border);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    z-index: 100;
+    box-shadow: var(--shadow-light);
+}
+
+.app-title {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: var(--text-primary);
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+.back-button {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--glass-bg);
+    border: 2px solid var(--glass-border);
+    backdrop-filter: blur(12px);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+    padding: 0;
+    will-change: transform, opacity;
+}
+
+.back-button:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: scale(1.05) translateX(-2px);
+}
+
+.back-button:active {
+    transform: scale(0.95) translateX(-2px);
+}
+
+.back-button:focus {
+    outline: 3px solid var(--accent-blue);
+    outline-offset: 2px;
+}
+
+.back-button svg {
+    width: 28px;
+    height: 28px;
+    color: var(--text-primary);
+}
+
+/* ============================================
+   Home Container & App Grid
+   ============================================ */
+.home-container {
+    min-height: calc(100vh - 100px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+}
+
+.app-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px;
+    max-width: 900px;
+    width: 100%;
+    padding: 20px;
+}
+
+.app-button {
+    width: 100%;
+    aspect-ratio: 1;
+    min-height: 180px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    border: 2px solid var(--glass-border);
+    border-radius: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    cursor: pointer;
+    transition: all var(--transition-medium);
+    box-shadow: var(--shadow-medium);
+    padding: 24px;
+    will-change: transform, opacity;
+    position: relative;
+    overflow: hidden;
+}
+
+.app-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.3), 
+        transparent
+    );
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+}
+
+.app-button:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.35);
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: var(--shadow-heavy);
+}
+
+.app-button:hover::before {
+    opacity: 1;
+}
+
+.app-button:active {
+    transform: translateY(-2px) scale(0.98);
+}
+
+.app-button:focus {
+    outline: 3px solid var(--accent-blue);
+    outline-offset: 4px;
+}
+
+.app-icon {
+    width: 72px;
+    height: 72px;
+    color: var(--text-primary);
+    stroke-width: 2;
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4));
+}
+
+.app-label {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+/* ============================================
+   Footer Hint
+   ============================================ */
+.footer-hint {
+    margin-top: 60px;
+    text-align: center;
+}
+
+.footer-hint p {
+    font-size: 16px;
+    color: var(--text-secondary);
+    font-weight: 400;
+}
+
+/* ============================================
+   Page Transitions
+   ============================================ */
+.page-enter {
+    animation: pageEnter var(--transition-medium) cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    will-change: transform, opacity;
+}
+
+.page-leave {
+    animation: pageLeave var(--transition-medium) cubic-bezier(0.4, 0, 0.6, 1) forwards;
+    will-change: transform, opacity;
+}
+
+.page-leave-reverse {
+    animation: pageLeaveReverse var(--transition-medium) cubic-bezier(0.4, 0, 0.6, 1) forwards;
+    will-change: transform, opacity;
+}
+
+@keyframes pageEnter {
+    from {
+        opacity: 0;
+        transform: translateX(40px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+}
+
+@keyframes pageLeave {
+    from {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(-40px) scale(0.95);
+    }
+}
+
+@keyframes pageLeaveReverse {
+    from {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(40px) scale(0.95);
+    }
+}
+
+/* ============================================
+   Night Mode
+   ============================================ */
+body.night {
+    filter: brightness(0.8) sepia(0.2) hue-rotate(180deg);
+}
+
+body.night .background {
+    filter: blur(40px) brightness(0.3) sepia(0.3);
+}
+
+/* ============================================
+   Subpage Styles
+   ============================================ */
+.subpage main {
+    padding-top: 20px;
+}
+
+/* ============================================
+   Responsive Design
+   ============================================ */
+@media (max-width: 768px) {
+    .app-grid {
+        gap: 20px;
+        padding: 10px;
+    }
+    
+    .app-button {
+        min-height: 140px;
+    }
+    
+    .app-icon {
+        width: 56px;
+        height: 56px;
+    }
+    
+    .app-label {
+        font-size: 18px;
+    }
+    
+    .app-title {
+        font-size: 26px;
+    }
+    
+    header {
+        padding: 16px 20px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .app-grid {
+        max-width: 1100px;
+        gap: 40px;
+    }
+    
+    .app-button {
+        min-height: 220px;
+    }
+    
+    .app-icon {
+        width: 88px;
+        height: 88px;
+    }
+    
+    .app-label {
+        font-size: 26px;
+    }
+}
+
+/* ============================================
+   Landscape Optimization
+   ============================================ */
+@media (orientation: landscape) and (max-height: 600px) {
+    .app-grid {
+        gap: 16px;
+    }
+    
+    .app-button {
+        min-height: 120px;
+        padding: 16px;
+        gap: 12px;
+    }
+    
+    .app-icon {
+        width: 48px;
+        height: 48px;
+    }
+    
+    .app-label {
+        font-size: 16px;
+    }
+    
+    header {
+        padding: 12px 24px;
+    }
+    
+    .app-title {
+        font-size: 24px;
+    }
+    
+    .footer-hint {
+        margin-top: 20px;
+    }
+}
+
+/* ============================================
+   Accessibility & Touch Targets
+   ============================================ */
+@media (hover: none) and (pointer: coarse) {
+    /* Touch device optimization */
+    .app-button,
+    .back-button,
+    .control-btn {
+        min-height: 84px;
+        min-width: 84px;
+    }
+    
+    .app-button:active {
+        background: rgba(255, 255, 255, 0.18);
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .app-button {
+        border-width: 3px;
+    }
+    
+    .back-button {
+        border-width: 3px;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ============================================
+   Focus Visible (Accessibility)
+   ============================================ */
+*:focus-visible {
+    outline: 3px solid var(--accent-blue);
+    outline-offset: 3px;
+}
+
+button:focus:not(:focus-visible) {
+    outline: none;
+}
+
+/* ============================================
+   Utility Classes
+   ============================================ */
+.text-center {
+    text-align: center;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+/* ============================================
+   Scrollbar Styling
+   ============================================ */
+::-webkit-scrollbar {
+    width: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* ============================================
+   Loading States
+   ============================================ */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.loading {
+    animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* ============================================
+   Print Styles
+   ============================================ */
+@media print {
+    .background,
+    .back-button,
+    .footer-hint {
+        display: none;
+    }
+    
+    body {
+        background: white;
+        color: black;
+    }
+}
