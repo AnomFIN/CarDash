@@ -71,22 +71,22 @@
             // Parsee hash-parametrit
             const params = {};
             hash.split('&').forEach(part => {
-                const [key, value] = part.split('=');
-                params[key] = decodeURIComponent(value);
+                const [key, ...valueParts] = part.split('=');
+                params[key] = decodeURIComponent(valueParts.join('='));
             });
             
             const accessToken = params.access_token;
             const expiresIn = params.expires_in;
             
             if (accessToken) {
-                // Tallenna token localStorage:en
                 const tokenData = {
                     accessToken: accessToken,
                     expiresIn: expiresIn,
                     timestamp: Date.now()
                 };
                 
-                localStorage.setItem('spotify-token', JSON.stringify(tokenData));
+                // Tallenna token sessionStorage:en (turvallisempi kuin localStorage XSS-hyökkäyksiä vastaan)
+                sessionStorage.setItem('spotify-token', JSON.stringify(tokenData));
                 
                 messageEl.textContent = '✓ Kirjautuminen onnistui! Palaa takaisin CarDash-sovellukseen.';
                 

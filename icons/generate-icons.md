@@ -24,7 +24,7 @@ Jos sinulla on ImageMagick asennettuna:
 # Asenna ImageMagick (jos ei ole asennettu)
 # Ubuntu/Debian: sudo apt-get install imagemagick
 # macOS: brew install imagemagick
-# Windows: chocolatey install imagemagick
+# Windows: choco install imagemagick
 
 # Luo ikonit SVG:stä
 cd icons/

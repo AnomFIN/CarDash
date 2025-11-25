@@ -22,7 +22,7 @@ CarDash is a minimalistic, Tesla-style CarPlay starter application designed for 
    - Custom controls (sliders, toggles)
    - Compass and speed display styling
 
-3. **app.js** - Main application logic (~600 lines)
+3. **app.js** - Main application logic (568 lines)
    - Screen navigation system
    - MapLibre GL integration with heading-up mode
    - EMA smoothing algorithm for compass
@@ -216,16 +216,16 @@ CarDash is a minimalistic, Tesla-style CarPlay starter application designed for 
 ## Files & Line Counts
 
 ```
-index.html       : 206 lines
-styles.css       : 622 lines
-app.js           : 600 lines
-sw.js            : 102 lines
-callback.html    : 109 lines
-manifest.json    : 60 lines
-README.md        : 267 lines
-DEPLOYMENT.md    : 383 lines
+index.html       : 118 lines
+styles.css       : 529 lines
+app.js           : 568 lines
+sw.js            : 127 lines
+callback.html    : 122 lines
+manifest.json    : 91 lines
+README.md        : 25 lines
+DEPLOYMENT.md    : 345 lines
 ----------------------------
-Total            : 2,349 lines
+Total            : 1,925 lines
 ```
 
 ## Testing Coverage

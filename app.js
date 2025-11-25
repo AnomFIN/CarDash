@@ -12,7 +12,11 @@ let map = null;
 let spotifyPlayer = null;
 let currentPosition = null;
 let currentHeading = 0;
-let speedSmoothing = [];
+let userMarker = null;
+
+// Välimuistitetut DOM-elementit (vältetään toistuvia kyselyitä)
+let speedValueEl = null;
+let compassNeedleEl = null;
 
 // Asetukset (tallennetaan localStorage:en)
 const settings = {
@@ -106,8 +110,16 @@ function initMaps() {
         return;
     }
     
+    // Välimuistita DOM-elementit kerran alustuksen yhteydessä
+    speedValueEl = document.querySelector('.speed-value');
+    compassNeedleEl = document.querySelector('.compass-needle');
+    
     // Alusta kartta kun käyttäjä avaa karttanäkymän ensimmäisen kerran
     const mapsScreen = document.getElementById('maps-screen');
+    if (!mapsScreen) {
+        console.error('Maps screen element not found');
+        return;
+    }
     const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
             if (mutation.target.classList.contains('active') && !map) {
@@ -136,7 +148,7 @@ function createMap() {
             console.log('Kartta ladattu');
             
             // Lisää käyttäjän sijaintimerkki
-            const marker = new maplibregl.Marker({ color: '#3e7bfa' })
+            userMarker = new maplibregl.Marker({ color: '#3e7bfa' })
                 .setLngLat([24.9384, 60.1699])
                 .addTo(map);
             
@@ -162,6 +174,11 @@ function updateMapPosition(position) {
     // Päivitä kartan keskipiste
     map.setCenter([longitude, latitude]);
     
+    // Päivitä käyttäjän sijaintimerkki
+    if (userMarker) {
+        userMarker.setLngLat([longitude, latitude]);
+    }
+    
     // Heading-up -tila: käännä karttaa kompassin mukaan
     if (settings.headingUp && position.coords.heading !== null) {
         const smoothedHeading = smoothHeading(position.coords.heading);
@@ -180,10 +197,11 @@ function updateMapPosition(position) {
 
 /**
  * EMA (Exponential Moving Average) smoothing heading-arvoille
- * Vähentää tärinää ja äkilliset muutokset
+ * Vähentää tärinää ja äkillisiä muutoksia
  */
 function smoothHeading(newHeading) {
-    const alpha = settings.smoothing / 10; // 0-1 välillä
+    // Jos smoothing on 0, käytä alpha=1 (ei tasoitusta, välitön päivitys)
+    const alpha = settings.smoothing === 0 ? 1 : settings.smoothing / 10; // 0-1 välillä
     
     // Huomioi 360° -> 0° siirtymä
     let delta = newHeading - currentHeading;
@@ -200,16 +218,14 @@ function smoothHeading(newHeading) {
 }
 
 function updateSpeedDisplay(speed) {
-    const speedValue = document.querySelector('.speed-value');
-    if (speedValue) {
-        speedValue.textContent = speed;
+    if (speedValueEl) {
+        speedValueEl.textContent = speed;
     }
 }
 
 function updateCompass(heading) {
-    const needle = document.querySelector('.compass-needle');
-    if (needle) {
-        needle.style.transform = `translate(-50%, -100%) rotate(${heading}deg)`;
+    if (compassNeedleEl) {
+        compassNeedleEl.style.transform = `translate(-50%, -100%) rotate(${heading}deg)`;
     }
 }
 
@@ -231,6 +247,8 @@ function initGeolocation() {
         },
         (error) => {
             console.error('Sijaintia ei voitu hakea:', error);
+            // Näytä virheviesti käyttäjälle
+            showLocationError(error);
         },
         {
             enableHighAccuracy: true,
@@ -238,6 +256,37 @@ function initGeolocation() {
             timeout: 5000
         }
     );
+}
+
+/**
+ * Näytä sijaintivirhe käyttäjälle
+ */
+function showLocationError(error) {
+    let message = 'Sijaintia ei voitu hakea.';
+    switch (error.code) {
+        case error.PERMISSION_DENIED:
+            message = 'Sijaintilupa evätty. Ota sijaintioikeudet käyttöön selaimen asetuksista.';
+            break;
+        case error.POSITION_UNAVAILABLE:
+            message = 'Sijaintitietoja ei ole saatavilla.';
+            break;
+        case error.TIMEOUT:
+            message = 'Sijainnin haku aikakatkaistiin.';
+            break;
+    }
+    
+    // Näytä viesti karttanäytöllä
+    const mapContainer = document.getElementById('map-container');
+    if (mapContainer) {
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'location-error';
+        errorDiv.textContent = message;
+        errorDiv.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(255,68,68,0.9);color:white;padding:20px;border-radius:10px;text-align:center;z-index:1000;max-width:80%;';
+        mapContainer.appendChild(errorDiv);
+        
+        // Poista viesti 5 sekunnin jälkeen
+        setTimeout(() => errorDiv.remove(), 5000);
+    }
 }
 
 // ============================================
@@ -248,7 +297,9 @@ function initSpotify() {
     console.log('Alustetaan Spotify-moduuli...');
     
     const loginButton = document.getElementById('spotify-login');
-    loginButton.addEventListener('click', authenticateSpotify);
+    if (loginButton) {
+        loginButton.addEventListener('click', authenticateSpotify);
+    }
     
     // Kuuntele Spotify SDK:n valmistumista
     window.onSpotifyWebPlaybackSDKReady = () => {
@@ -259,14 +310,14 @@ function initSpotify() {
     window.addEventListener('message', (event) => {
         if (event.origin !== window.location.origin) return;
         
-        if (event.data.type === 'spotify-auth-success') {
+        if (event.data && event.data.type === 'spotify-auth-success') {
             console.log('Spotify-autentikaatio onnistui');
             initSpotifyPlayer(event.data.token);
         }
     });
     
-    // Tarkista onko token jo tallennettu
-    const savedToken = localStorage.getItem('spotify-token');
+    // Tarkista onko token jo tallennettu (käytetään sessionStorage:a turvasyistä)
+    const savedToken = sessionStorage.getItem('spotify-token');
     if (savedToken) {
         try {
             const tokenData = JSON.parse(savedToken);
@@ -291,6 +342,7 @@ function authenticateSpotify() {
     if (!settings.spotifyClientId) {
         // Näytä viesti käyttäjälle ja ohjaa asetuksiin
         console.warn('Spotify Client ID puuttuu');
+        showSpotifyError('Aseta Spotify Client ID asetuksista ensin.');
         navigateTo('settings-screen');
         return;
     }
@@ -307,7 +359,7 @@ function authenticateSpotify() {
     // Tämä on placeholder-toteutus. Tuotannossa:
     // 1. Luo backend-endpoint callback-käsittelyä varten
     // 2. Tai käytä implicit grant flow:ia ja käsittele token URL hashista
-    const redirectUri = window.location.origin + '/callback';
+    const redirectUri = window.location.origin + '/callback.html';
     const authUrl = `https://accounts.spotify.com/authorize?` +
         `client_id=${settings.spotifyClientId}&` +
         `response_type=token&` +
@@ -329,14 +381,17 @@ function initSpotifyPlayer(accessToken) {
     // Virhetilanteet
     spotifyPlayer.addListener('initialization_error', ({ message }) => {
         console.error('Spotify init error:', message);
+        showSpotifyError('Spotify-alustus epäonnistui. Yritä ladata sivu uudelleen.');
     });
     
     spotifyPlayer.addListener('authentication_error', ({ message }) => {
         console.error('Spotify auth error:', message);
+        showSpotifyError('Spotify-autentikaatio epäonnistui. Tarkista tunnuksesi ja yritä uudelleen.');
     });
     
     spotifyPlayer.addListener('account_error', ({ message }) => {
         console.error('Spotify account error:', message);
+        showSpotifyError('Spotify-tilivirhe. Varmista että tilisi on voimassa ja Premium-tili.');
     });
     
     // Soittimen tilan muutokset
@@ -351,8 +406,8 @@ function initSpotifyPlayer(accessToken) {
         if (success) {
             console.log('Spotify-soitin yhdistetty');
             // Näytä soitin, piilota kirjautumisviesti
-            document.querySelector('.spotify-notice').classList.add('hidden');
-            document.getElementById('spotify-player').classList.remove('hidden');
+            document.querySelector('.spotify-notice')?.classList.add('hidden');
+            document.getElementById('spotify-player')?.classList.remove('hidden');
         }
     });
     
@@ -382,7 +437,7 @@ function updateSpotifyUI(state) {
     document.getElementById('track-name').textContent = currentTrack.name;
     document.getElementById('artist-name').textContent = 
         currentTrack.artists.map(a => a.name).join(', ');
-    document.getElementById('album-image').src = currentTrack.album.images[0].url;
+    document.getElementById('album-image').src = currentTrack.album.images?.[0]?.url || '';
     
     // Päivitä play/pause -painike
     const playBtn = document.getElementById('play-pause-btn');
@@ -479,6 +534,27 @@ function checkHTTPS() {
 }
 
 checkHTTPS();
+
+/**
+ * Näytä Spotify-virhe käyttäjälle
+ */
+function showSpotifyError(message) {
+    const container = document.querySelector('.spotify-container');
+    if (container) {
+        // Poista mahdollinen vanha virheviesti
+        const oldError = container.querySelector('.spotify-error');
+        if (oldError) oldError.remove();
+        
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'spotify-error';
+        errorDiv.textContent = message;
+        errorDiv.style.cssText = 'background:rgba(255,68,68,0.9);color:white;padding:15px;border-radius:10px;text-align:center;margin-bottom:20px;';
+        container.insertBefore(errorDiv, container.firstChild);
+        
+        // Poista viesti 5 sekunnin jälkeen
+        setTimeout(() => errorDiv.remove(), 5000);
+    }
+}
 
 // ============================================
 // Vie funktiot globaaliin scopeen tarvittaessa

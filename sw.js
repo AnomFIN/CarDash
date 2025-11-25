@@ -108,7 +108,8 @@ self.addEventListener('fetch', (event) => {
                         console.error('[SW] Fetch epäonnistui:', error);
                         
                         // Jos offline ja pyyntö on HTML-sivu, palauta index.html
-                        if (event.request.headers.get('accept').includes('text/html')) {
+                        const acceptHeader = event.request.headers.get('accept');
+                        if (acceptHeader && acceptHeader.includes('text/html')) {
                             return caches.match('/index.html');
                         }
                     });
